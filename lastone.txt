@@ -1,0 +1,156 @@
+lastone
+QUESTION 1 : CRÉATION DE LA TABLE
+Créez une table externe Hive pour stocker ces données
+
+sql
+CREATE TABLE IF NOT EXISTS clients (
+    id INT,
+    nom STRING,
+    prenom STRING,
+    date_naissance STRING,
+    sexe STRING,
+    produit STRING,
+    quantite INT,
+    prix_total INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ';'
+STORED AS TEXTFILE;
+
+-- Chargement des données
+LOAD DATA LOCAL INPATH '/chemin/vers/clients.csv' INTO TABLE clients;
+📊 QUESTION 2a : STATISTIQUES DE BASE
+Combien de clients ont acheté chaque type de produit ?
+
+sql
+SELECT 
+    produit,
+    COUNT(DISTINCT id) as nombre_clients
+FROM clients
+GROUP BY produit
+ORDER BY nombre_clients DESC;
+👥 QUESTION 2b : ANALYSE DÉMOGRAPHIQUE
+Quel est l'âge actuel de chaque client ?
+
+sql
+SELECT 
+    nom,
+    prenom,
+    date_naissance,
+    YEAR(CURRENT_DATE()) - YEAR(FROM_UNIXTIME(UNIX_TIMESTAMP(date_naissance, 'dd/MM/yyyy'))) as age
+FROM clients
+ORDER BY age DESC;
+💰 QUESTION 2c : ANALYSE DES VENTES
+Quel est le chiffre d'affaires total par produit ?
+
+sql
+SELECT 
+    produit,
+    SUM(prix_total) as CA_total,
+    SUM(quantite) as total_quantite
+FROM clients
+GROUP BY produit
+ORDER BY CA_total DESC;
+🎯 QUESTION 2d : SEGMENTATION CLIENTS
+Classez les clients en 3 catégories d'acheteurs
+
+sql
+SELECT 
+    nom,
+    prenom,
+    prix_total,
+    CASE 
+        WHEN prix_total < 1000 THEN 'Petit acheteur'
+        WHEN prix_total >= 1000 AND prix_total < 10000 THEN 'Moyen acheteur'
+        ELSE 'Gros acheteur'
+    END as categorie_acheteur
+FROM clients
+ORDER BY prix_total DESC;
+🔧 QUESTION 2e : CORRECTION DES DONNÉES
+Combien de clients sont incorrectement genrés ?
+
+sql
+-- Détection des incohérences
+SELECT 
+    COUNT(*) as nombre_incoherences,
+    SUM(CASE WHEN prenom IN ('Samira', 'Amira', 'Mariam', 'Aicha', 'Hanae') AND sexe = 'Masculin' THEN 1 ELSE 0 END) as feminin_marque_masculin,
+    SUM(CASE WHEN prenom IN ('Oualid', 'Mohamed', 'Aadnane', 'Fouad', 'Karim', 'Samir', 'Youssef', 'Hicham') AND sexe = 'Feminin' THEN 1 ELSE 0 END) as masculin_marque_feminin
+FROM clients;
+
+-- Liste détaillée des incohérences
+SELECT 
+    id,
+    nom,
+    prenom,
+    sexe as sexe_actuel,
+    CASE 
+        WHEN prenom IN ('Samira', 'Amira', 'Mariam', 'Aicha', 'Hanae') THEN 'Feminin'
+        ELSE 'Masculin'
+    END as sexe_corrige
+FROM clients
+WHERE 
+    (prenom IN ('Samira', 'Amira', 'Mariam', 'Aicha', 'Hanae') AND sexe = 'Masculin')
+    OR (prenom IN ('Oualid', 'Mohamed', 'Aadnane', 'Fouad', 'Karim', 'Samir', 'Youssef', 'Hicham') AND sexe = 'Feminin');
+🏆 QUESTION 3a : TOP 3 PRODUITS PLUS VENDUS
+Quels sont les 3 produits avec le plus grand nombre d'unités vendues ?
+
+sql
+SELECT 
+    produit,
+    SUM(quantite) as total_unites_vendues
+FROM clients
+GROUP BY produit
+ORDER BY total_unites_vendues DESC
+LIMIT 3;
+📅 QUESTION 3b : ANALYSE TEMPORELLE
+Quel mois de naissance a le plus de clients ?
+
+sql
+SELECT 
+    SUBSTRING(date_naissance, 4, 2) as mois_naissance,
+    COUNT(*) as nombre_clients
+FROM clients
+GROUP BY SUBSTRING(date_naissance, 4, 2)
+ORDER BY nombre_clients DESC;
+💎 QUESTION 3c : CLIENT LE PLUS DÉPENSIER
+Qui est le client ayant effectué l'achat le plus cher ?
+
+sql
+SELECT 
+    id,
+    nom,
+    prenom,
+    produit,
+    prix_total,
+    date_naissance,
+    sexe
+FROM clients
+ORDER BY prix_total DESC
+LIMIT 1;
+🛠️ QUESTION BONUS : CORRECTION AUTOMATIQUE
+Création d'une table avec les données corrigées
+
+sql
+CREATE TABLE clients_corriges AS
+SELECT 
+    id,
+    nom,
+    prenom,
+    date_naissance,
+    CASE 
+        WHEN prenom IN ('Samira', 'Hanae') THEN 'Feminin'
+        WHEN prenom = 'Oualid' THEN 'Masculin'
+        ELSE sexe
+    END as sexe_corrige,
+    produit,
+    quantite,
+    prix_total
+FROM clients;
+
+-- Vérification de la correction
+SELECT 
+    sexe_corrige,
+    COUNT(*) as nombre_clients,
+    GROUP_CONCAT(prenom) as prenoms
+FROM clients_corriges
+GROUP BY sexe_corrige;
