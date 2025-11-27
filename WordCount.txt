@@ -1,0 +1,50 @@
+WordCount
+4.1 Mapper WordCount (Découpage de texte)
+ Algorithme WC_Mapper
+ Variables
+    word : Texte
+    line : Texte
+ Début
+    Procédure map(key, value, output, reporter)
+    Début
+        line ← convertir value en chaîne
+        Découper line en mots
+        Pour chaque mot trouvé Faire
+            output.collecte(mot, 1)
+        FinPour
+    FinProcédure
+ FinAlgorithme
+ 4.2 Mapper Filtrage de lignes
+ Algorithme Mapper_Filtre
+ Objectif : ignorer les lignes ne contenant pas un mot clé donné
+ Variables
+    motCle : Texte
+ Début
+    Procédure map(key, value, output, reporter)
+    Début
+        Si value contient motCle Alors
+            output.collecte(key, value)
+        FinSi
+    FinProcédure
+ FinAlgorithme
+ 4.3 Mapper Extraction du premier champ
+ Algorithme Mapper_ExtractionChamp
+ Objectif : extraire une colonne d’une ligne CSV
+ Début
+    Procédure map(key, value, output, reporter)
+    Début
+        champs ← value.split(';')
+        output.collecte(champs[0], 1)
+    FinProcédure
+ FinAlgorithme
+ 4.4 Mapper Transformation numérique
+ Algorithme Mapper_Transformation
+ Objectif : multiplier les valeurs numériques extraites
+ Début
+    Procédure map(key, value, output, reporter)
+    Début
+        val ← convertir value en entier
+        rés ← val * 2
+        output.collecte(key, rés)
+    FinProcédure
+ FinAlgorithme

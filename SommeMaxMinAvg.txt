@@ -1,0 +1,75 @@
+SommeMaxMinAvg 
+ //4.1 Reducer_Somme
+ Algorithme Reducer_Somme
+ Variables
+    sum : Entier
+    key : Texte
+    values : Itérateur d'Entier
+ Début
+    Procédure reduce(key, values, output, reporter)
+    Début
+        sum ← 0
+        TantQue values a un élément Faire
+            sum ← sum + values.Suivant()
+        FinTantQue
+        output.Collecte(key, sum)
+    FinProcédure
+ FinAlgorithme
+ //4.2 Reducer_Max
+ Algorithme Reducer_Max
+ Variables
+    maxVal : Entier
+    key : Texte
+    values : Itérateur d'Entier
+ Début
+    Procédure reduce(key, values, output, reporter)
+    Début
+        maxVal ← values.Suivant()
+        TantQue values a un élément Faire
+            val ← values.Suivant()
+            Si val > maxVal Alors maxVal ← val
+        FinSi
+        FinTantQue
+        output.Collecte(key, maxVal)
+    FinProcédure
+ FinAlgorithme
+ //4.3 Reducer_Min
+ Algorithme Reducer_Min
+ Variables
+    minVal : Entier
+    key : Texte
+    values : Itérateur d'Entier
+ Début
+    Procédure reduce(key, values, output, reporter)
+    Début
+        minVal ← values.Suivant()
+        TantQue values a un élément Faire
+            val ← values.Suivant()
+            Si val < minVal Alors minVal ← val
+        FinSi
+        FinTantQue
+        output.Collecte(key, minVal)
+    FinProcédure
+ FinAlgorithme
+ //4.4 Reducer_Moyenne
+ Algorithme Reducer_Moyenne
+ Variables
+    sum : Entier
+    count : Entier
+    moyenne : Réel
+    key : Texte
+    values : Itérateur d'Entier
+ Début
+    Procédure reduce(key, values, output, reporter)
+    Début
+        sum ← 0
+        count ← 0
+        TantQue values a un élément Faire
+            val ← values.Suivant()
+            sum ← sum + val
+            count ← count + 1
+        FinTantQue
+moyenne ← sum / count
+ output.Collecte(key, moyenne)
+ FinProcédure
+ FinAlgorithme

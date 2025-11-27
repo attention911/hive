@@ -1,0 +1,44 @@
+correction test
+
+A.
+SELECT COUNT(*) AS total_transactions FROM transactions1;
+
+B.
+SELECT SUM(quantity * price) AS total_revenue FROM transactions1;
+
+C.
+SELECT product_id, MAX(price) AS max_price FROM transactions1 GROUP BY product_id ORDER BY max_price DESC LIMIT 1;
+
+D.
+SELECT AVG(quantity) AS avg_quantity_per_transaction FROM transactions1;
+
+E.
+SELECT customer_id, COUNT(*) AS total_transactions FROM transactions1 GROUP BY customer_id ORDER BY total_transactions DESC LIMIT 5;
+
+F
+SELECT SUBSTR(purchase_date, 1, 7) AS month, SUM(quantity * price) AS total_revenue FROM transactions1 GROUP BY SUBSTR(purchase_date, 1, 7) ORDER BY total_revenue DESC LIMIT 1;
+
+
+G.
+CREATE TABLE new_1 AS SELECT *, 1 AS join_key FROM (SELECT COUNT(DISTINCT customer_id) AS total_customers FROM transactions1) AS total;
+
+CREATE TABLE new_22 AS SELECT *, 1 AS join_key2 FROM ( SELECT COUNT(DISTINCT customer_id) AS customers_last_month FROM transactions1 WHERE purchase_date >= '2024-02-01' AND purchase_date < '2024-04-01') AS last_month;
+
+SELECT (last_month.customers_last_month / total.total_customers) * 100 AS percentage_last_month FROM new_11 total JOIN new_22 last_month ON (total.join_key = last_month.join_key2);
+
+H.
+SELECT product_id, SUM(quantity) AS total_quantity_sold FROM transactions1 GROUP BY product_id ORDER BY total_quantity_sold DESC LIMIT 1;
+
+I.
+SELECT AVG(price) AS average_unit_price FROM transactions1;
+
+J.
+CREATE VIEW last_month_avg_price AS SELECT product_id, AVG(price) AS avg_price_last_month
+FROM transactions1 WHERE purchase_date >= '2024-02-01' AND purchase_date < '2024-04-01' GROUP BY product_id;
+
+
+SELECT t.product_id, t.price AS current_price, l.avg_price_last_month, ((t.price - l.avg_price_last_month) / l.avg_price_last_month) * 100 AS price_increase_percentage
+FROM transactions1 t JOIN last_month_avg_price l ON t.product_id = l.product_id WHERE ((t.price - l.avg_price_last_month) / l.avg_price_last_month) * 100 > 10;
+
+
+

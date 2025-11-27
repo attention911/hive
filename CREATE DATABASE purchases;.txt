@@ -1,0 +1,34 @@
+CREATE DATABASE purchases;
+
+USE purchases;
+
+CREATE TABLE purchases (
+ datepurchase STRING,
+ time STRING,
+ store STRING,
+ product STRING,
+ cost DOUBLE,
+ payment STRING
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+
+
+LOAD DATA LOCAL INPATH '/OPT/purchase.txt' INTO TABLE purchases;
+
+
+SELECT SUM(cost) FROM purchases;
+
+SELECT store, COUNT(*) FROM purchases GROUP BY store;
+
+SELECT product, SUM(cost) FROM purchases GROUP BY product;
+
+SELECT store, product, SUM(cost) FROM purchases GROUP BY store, product;
+
+SELECT product, COUNT(*) AS cnt FROM purchases GROUP BY product ORDER BY cnt DESC LIMIT 5;
+
+SELECT store, SUM(cost) as total_sales FROM purchases GROUP BY store ORDER BY total_sales DESC;
+
+SELECT datepurchase, COUNT(*) as sales_count FROM purchases GROUP BY datepurchase;
+
+SELECT product, AVG(cost) as avg_cost FROM purchases GROUP BY product;
+
+SELECT payment, COUNT(*) as purchase_count, SUM(cost) as total_cost FROM purchases GROUP BY payment;
