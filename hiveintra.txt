@@ -1,0 +1,148 @@
+hiveintra
+
+1️⃣ Nombre total d’achats réalisés
+
+(équivalent à : COUNT(*))
+
+SELECT COUNT(*) AS total_achats FROM client;
+
+2️⃣ Chiffre d’affaires total (quantité × prix)
+SELECT SUM(quantite * prix) AS total_revenue FROM client;
+
+3️⃣ Produit le plus cher
+SELECT produit, MAX(prix) AS max_price
+FROM client
+GROUP BY produit
+ORDER BY max_price DESC
+LIMIT 1;
+
+4️⃣ Quantité moyenne achetée par transaction
+SELECT AVG(quantite) AS avg_quantity FROM client;
+
+5️⃣ Les 5 clients qui ont acheté le plus (en nombre de transactions)
+
+(chez toi une ligne = une transaction)
+
+SELECT nom, prenom, COUNT(*) AS total_transactions
+FROM client
+GROUP BY nom, prenom
+ORDER BY total_transactions DESC
+LIMIT 5;
+
+6️⃣ Chiffre d’affaires total par produit
+SELECT produit, SUM(quantite * prix) AS total_revenue
+FROM client
+GROUP BY produit
+ORDER BY total_revenue DESC;
+
+7️⃣ Classement des produits les plus achetés (en quantité totale)
+SELECT produit, SUM(quantite) AS total_qty
+FROM client
+GROUP BY produit
+ORDER BY total_qty DESC;
+
+8️⃣ Répartition des achats par genre (Masculin/Feminin)
+SELECT genre, COUNT(*) AS total_achats,
+       SUM(quantite * prix) AS total_revenue
+FROM client
+GROUP BY genre;
+
+9️⃣ Âge des clients + moyenne d’âge
+
+👉 Extraction d’année + calcul d’âge.
+⚠ Hive comprend from_unixtime + unix_timestamp
+
+a) Liste des clients avec âge :
+SELECT nom, prenom, date_naissance,
+       YEAR(CURRENT_DATE) - YEAR(TO_DATE(date_naissance)) AS age
+FROM client;
+
+b) Âge moyen :
+SELECT AVG(YEAR(CURRENT_DATE) - YEAR(TO_DATE(date_naissance))) AS age_moyen
+FROM client  
+
+1️⃣ Pourcentage des achats faits par les femmes
+SELECT 
+  (COUNT(CASE WHEN genre = 'Feminin' THEN 1 END) * 100.0 / COUNT(*)) 
+  AS pct_femmes
+FROM client;
+
+2️⃣ Pourcentage de ventes par produit (part de marché de chaque produit)
+SELECT 
+  produit,
+  (SUM(quantite) * 100.0 / (SELECT SUM(quantite) FROM client)) AS pct_ventes
+FROM client
+GROUP BY produit;
+
+3️⃣ Produit le plus rentable (CA le plus élevé)
+SELECT produit, SUM(quantite * prix) AS revenue
+FROM client
+GROUP BY produit
+ORDER BY revenue DESC
+LIMIT 1;
+
+4️⃣ Quel genre dépense le plus ? (H/F)
+SELECT genre, SUM(quantite * prix) AS total_depense
+FROM client
+GROUP BY genre
+ORDER BY total_depense DESC;
+
+5️⃣ Calculer le prix moyen par produit
+SELECT produit, AVG(prix) AS avg_price
+FROM client
+GROUP BY produit;
+
+6️⃣ Âge moyen des clients
+SELECT AVG(YEAR(CURRENT_DATE) - YEAR(TO_DATE(date_naissance))) AS age_moyen
+FROM client;
+
+7️⃣ Classement des produits par volume vendu (quantité totale)
+SELECT produit, SUM(quantite) AS qty_total
+FROM client
+GROUP BY produit
+ORDER BY qty_total DESC;
+
+8️⃣ Classement des clients par montant total dépensé
+SELECT nom, prenom, SUM(quantite * prix) AS total_spent
+FROM client
+GROUP BY nom, prenom
+ORDER BY total_spent DESC;
+
+9️⃣ Produit le moins vendu (en quantité)
+SELECT produit, SUM(quantite) AS qty
+FROM client
+GROUP BY produit
+ORDER BY qty ASC
+LIMIT 1;
+
+🔟 Nombre de clients masculins vs féminins
+SELECT genre, COUNT(*) AS total_clients
+FROM client
+GROUP BY genre;
+
+1️⃣1️⃣ Pourcentage du chiffre d’affaires du produit "Vehicule"
+SELECT 
+  (SUM(CASE WHEN produit = 'Vehicule' THEN quantite * prix END) * 100.0) 
+  / SUM(quantite * prix) AS pct_vehicule
+FROM client;
+
+1️⃣2️⃣ Revenu moyen par client
+SELECT AVG(total) AS avg_revenue_per_client
+FROM (
+    SELECT nom, prenom, SUM(quantite * prix) AS total
+    FROM client
+    GROUP BY nom, prenom
+) t;
+
+1️⃣3️⃣ Extraire l’année de naissance + compter les clients par année
+SELECT YEAR(TO_DATE(date_naissance)) AS year_birth,
+       COUNT(*) AS total_clients
+FROM client
+GROUP BY YEAR(TO_DATE(date_naissance))
+ORDER BY year_birth;
+
+1️⃣4️⃣ Pourcentage de clients nés après 1990
+SELECT 
+  (COUNT(CASE WHEN YEAR(TO_DATE(date_naissance)) > 1990 THEN 1 END) 
+   * 100.0 / COUNT(*)) AS pct_after_1990
+FROM client;
